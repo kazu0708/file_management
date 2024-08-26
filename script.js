@@ -23,6 +23,7 @@ request.onerror = function(event) {
     console.error('Database error:', event.target.errorCode);
 };
 
+document.addEventListener('DOMContentLoaded', () => {
 // ファイルアップロードのフォーム要素を取得
 const fileInput = document.getElementById('fileUp');
 const uploaderNameInput = document.getElementById('name');
@@ -61,7 +62,8 @@ submitButton.addEventListener('click', (event) => {
         const request = objectStore.add(fileData);
         request.onsuccess = function() {
             console.log('File added to the database.');
-            displayFiles();
+            // ファイルアップロード後にテーブルに追加して表示
+            addFileToTable(fileData);
         };
 
         request.onerror = function(event) {
@@ -85,43 +87,47 @@ function displayFiles() {
         const cursor = event.target.result;
 
         if (cursor) {
-            const row = document.createElement('tr');
-
-            // ファイル名
-            const fileNameCell = document.createElement('td');
-            fileNameCell.textContent = cursor.value.fileName;
-            row.appendChild(fileNameCell);
-
-            // ファイル投稿者名
-            const uploaderNameCell = document.createElement('td');
-            uploaderNameCell.textContent = cursor.value.uploaderName;
-            row.appendChild(uploaderNameCell);
-
-            // アップロード日付
-            const uploadDateCell = document.createElement('td');
-            uploadDateCell.textContent = cursor.value.uploadDate;
-            row.appendChild(uploadDateCell);
-
-            // パスワードの有無
-            const hasPasswordCell = document.createElement('td');
-            hasPasswordCell.textContent = cursor.value.hasPassword ? 'あり' : 'なし';
-            row.appendChild(hasPasswordCell);
-
-            // ダウンロードボタン
-            const downloadCell = document.createElement('td');
-            const downloadButton = document.createElement('button');
-            downloadButton.textContent = 'Download';
-            downloadButton.addEventListener('click', () => {
-                downloadFile(cursor.value.fileName, cursor.value.fileContent);
-            });
-            downloadCell.appendChild(downloadButton);
-            row.appendChild(downloadCell);
-
-            fileTableBody.appendChild(row);
-
+            addFileToTable(cursor.value);
             cursor.continue();
         }
     };
+}
+
+// ファイルをテーブルに追加する関数
+function addFileToTable(fileData) {
+    const row = document.createElement('tr');
+
+    // ファイル名
+    const fileNameCell = document.createElement('td');
+    fileNameCell.textContent = fileData.fileName;
+    row.appendChild(fileNameCell);
+
+    // ファイル投稿者名
+    const uploaderNameCell = document.createElement('td');
+    uploaderNameCell.textContent = fileData.uploaderName;
+    row.appendChild(uploaderNameCell);
+
+    // アップロード日付
+    const uploadDateCell = document.createElement('td');
+    uploadDateCell.textContent = fileData.uploadDate;
+    row.appendChild(uploadDateCell);
+
+    // パスワードの有無
+    const hasPasswordCell = document.createElement('td');
+    hasPasswordCell.textContent = fileData.hasPassword ? 'あり' : 'なし';
+    row.appendChild(hasPasswordCell);
+
+    // ダウンロードボタン
+    const downloadCell = document.createElement('td');
+    const downloadButton = document.createElement('button');
+    downloadButton.textContent = 'Download';
+    downloadButton.addEventListener('click', () => {
+        downloadFile(fileData.fileName, fileData.fileContent);
+    });
+    downloadCell.appendChild(downloadButton);
+    row.appendChild(downloadCell);
+
+    fileTableBody.appendChild(row);
 }
 
 // ファイルのダウンロード処理
@@ -136,3 +142,4 @@ function downloadFile(fileName, fileContent) {
 
     URL.revokeObjectURL(url);
 }
+});
