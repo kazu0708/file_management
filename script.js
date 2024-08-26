@@ -9,6 +9,9 @@ request.onupgradeneeded = function(event) {
     // オブジェクトストアの作成
     const objectStore = db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
     objectStore.createIndex('fileName', 'fileName', { unique: false });
+    objectStore.createIndex('uploaderName', 'uploaderName', { unique: false });
+    objectStore.createIndex('uploadDate', 'uploadDate', { unique: false });
+    objectStore.createIndex('hasPassword', 'hasPassword', { unique: false });
 };
 
 request.onsuccess = function(event) {
@@ -20,12 +23,25 @@ request.onerror = function(event) {
     console.error('Database error:', event.target.errorCode);
 };
 
-// ファイルのアップロードと保存
-uploadButton.addEventListener('click', () => {
-    const files = fileInput.files;
+// ファイルアップロードのフォーム要素を取得
+const fileInput = document.getElementById('fileUp');
+const uploaderNameInput = document.getElementById('name');
+const passwordInput = document.getElementById('passwordInput');
+const submitButton = document.getElementById('submitButton');
+const fileTableBody = document.querySelector('#fileTable tbody');
 
-    if (files.length === 0) {
-        alert('Please select a file!');
+// ファイルのアップロードと保存
+submitButton.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    const files = fileInput.files;
+    const uploaderName = uploaderNameInput.value;
+    const password = passwordInput.value;
+    const hasPassword = password !== '';
+    const uploadDate = new Date().toLocaleDateString();
+
+    if (files.length === 0 || uploaderName.trim() === '') {
+        alert('ファイルと投稿者名を入力してください。');
         return;
     }
 
@@ -36,6 +52,9 @@ uploadButton.addEventListener('click', () => {
 
         const fileData = {
             fileName: file.name,
+            uploaderName: uploaderName,
+            uploadDate: uploadDate,
+            hasPassword: hasPassword,
             fileContent: file // ファイルデータを保存
         };
 
@@ -50,12 +69,15 @@ uploadButton.addEventListener('click', () => {
         };
     }
 
+    // フォームをリセット
     fileInput.value = '';
+    uploaderNameInput.value = '';
+    passwordInput.value = '';
 });
 
 // 保存されたファイルの表示
 function displayFiles() {
-    fileList.innerHTML = '';
+    fileTableBody.innerHTML = '';
     const transaction = db.transaction(['files'], 'readonly');
     const objectStore = transaction.objectStore('files');
 
@@ -63,35 +85,54 @@ function displayFiles() {
         const cursor = event.target.result;
 
         if (cursor) {
-            const listItem = document.createElement('li');
-            listItem.textContent = cursor.value.fileName;
+            const row = document.createElement('tr');
 
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', () => {
-                deleteFile(cursor.value.id);
+            // ファイル名
+            const fileNameCell = document.createElement('td');
+            fileNameCell.textContent = cursor.value.fileName;
+            row.appendChild(fileNameCell);
+
+            // ファイル投稿者名
+            const uploaderNameCell = document.createElement('td');
+            uploaderNameCell.textContent = cursor.value.uploaderName;
+            row.appendChild(uploaderNameCell);
+
+            // アップロード日付
+            const uploadDateCell = document.createElement('td');
+            uploadDateCell.textContent = cursor.value.uploadDate;
+            row.appendChild(uploadDateCell);
+
+            // パスワードの有無
+            const hasPasswordCell = document.createElement('td');
+            hasPasswordCell.textContent = cursor.value.hasPassword ? 'あり' : 'なし';
+            row.appendChild(hasPasswordCell);
+
+            // ダウンロードボタン
+            const downloadCell = document.createElement('td');
+            const downloadButton = document.createElement('button');
+            downloadButton.textContent = 'Download';
+            downloadButton.addEventListener('click', () => {
+                downloadFile(cursor.value.fileName, cursor.value.fileContent);
             });
+            downloadCell.appendChild(downloadButton);
+            row.appendChild(downloadCell);
 
-            listItem.appendChild(deleteButton);
-            fileList.appendChild(listItem);
+            fileTableBody.appendChild(row);
 
             cursor.continue();
         }
     };
 }
 
-// ファイルの削除
-function deleteFile(id) {
-    const transaction = db.transaction(['files'], 'readwrite');
-    const objectStore = transaction.objectStore('files');
+// ファイルのダウンロード処理
+function downloadFile(fileName, fileContent) {
+    const blob = new Blob([fileContent]);
+    const url = URL.createObjectURL(blob);
 
-    const request = objectStore.delete(id);
-    request.onsuccess = function() {
-        console.log('File deleted from the database.');
-        displayFiles();
-    };
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
 
-    request.onerror = function(event) {
-        console.error('Error deleting file from database:', event.target.errorCode);
-    };
+    URL.revokeObjectURL(url);
 }
