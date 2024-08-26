@@ -1,1 +1,18 @@
+#fileTable{
+    margin: 0 auto;
+}
 
+thead {
+    background-color: #858585;
+}
+
+table {
+    border-collapse: collapse;
+    background-color: #d1d1d1;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: center;
+}
