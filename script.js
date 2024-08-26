@@ -164,8 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
     }
 
+
     // ファイルの削除処理
-    function deleteFile(id, row) {
+function deleteFile(id, row) {
+    const confirmDelete = confirm('本当にこのファイルを削除しますか？');
+    if (confirmDelete) {
         const transaction = db.transaction(['files'], 'readwrite');
         const objectStore = transaction.objectStore('files');
         const request = objectStore.delete(id);
@@ -179,6 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error deleting file from database:', event.target.errorCode);
         };
     }
+}
+
 
     request.onsuccess = function(event) {
         db = event.target.result;
