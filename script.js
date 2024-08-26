@@ -25,7 +25,6 @@ request.onerror = function(event) {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ファイルアップロードのフォーム要素を取得
     const fileInput = document.getElementById('fileUp');
     const uploaderNameInput = document.getElementById('name');
     const passwordInput = document.getElementById('passwordInput');
@@ -139,6 +138,16 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadCell.appendChild(downloadButton);
         row.appendChild(downloadCell);
 
+        // 削除ボタン
+        const deleteCell = document.createElement('td');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '削除';
+        deleteButton.addEventListener('click', () => {
+            deleteFile(fileData.id, row);
+        });
+        deleteCell.appendChild(deleteButton);
+        row.appendChild(deleteCell);
+
         fileTableBody.appendChild(row);
     }
 
@@ -154,10 +163,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         URL.revokeObjectURL(url);
     }
+
+    // ファイルの削除処理
+    function deleteFile(id, row) {
+        const transaction = db.transaction(['files'], 'readwrite');
+        const objectStore = transaction.objectStore('files');
+        const request = objectStore.delete(id);
+
+        request.onsuccess = function() {
+            console.log('File deleted from the database.');
+            row.remove(); // テーブルから行を削除
+        };
+
+        request.onerror = function(event) {
+            console.error('Error deleting file from database:', event.target.errorCode);
+        };
+    }
+
     request.onsuccess = function(event) {
         db = event.target.result;
-    
-        // トランザクションの成功時と失敗時の処理
         const transaction = db.transaction(['files'], 'readonly');
         transaction.oncomplete = function() {
             console.log("Transaction completed: database modification finished.");
@@ -168,6 +192,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Transaction error: ", event.target.errorCode);
         };
     };
-   
-        
 });
