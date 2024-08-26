@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const uploaderName = uploaderNameInput.value;
         const password = passwordInput.value;
         const hasPassword = password !== '';
-        const uploadDate = new Date().toLocaleDateString();
+        const now = new Date();
+        const uploadDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
 
         if (files.length === 0 || uploaderName.trim() === '') {
             alert('ファイルと投稿者名を入力してください。');
