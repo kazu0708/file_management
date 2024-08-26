@@ -153,4 +153,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         URL.revokeObjectURL(url);
     }
+    request.onsuccess = function(event) {
+        db = event.target.result;
+    
+        // トランザクションの成功時と失敗時の処理
+        const transaction = db.transaction(['files'], 'readonly');
+        transaction.oncomplete = function() {
+            console.log("Transaction completed: database modification finished.");
+            displayFiles();
+        };
+    
+        transaction.onerror = function(event) {
+            console.error("Transaction error: ", event.target.errorCode);
+        };
+    };
+   
+        
 });
