@@ -19,12 +19,17 @@ th, td {
 
 .fileUploader {
     align-items: center;
-    margin: 0 auto;
-    height: 30px;
+    margin: 20px auto;
+    height: 60px;
     width: 665px;
     padding: 20px;
     margin-top: 30px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #ffffff;
+}
+
+#comment {
+    margin: 10px 255px;
+    width: 400px;
 }
