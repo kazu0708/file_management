@@ -52,13 +52,40 @@ let db;
                         <p>ファイル形式: ${fileData.fileExtension}</p> 
                         <p>ファイルサイズ: ${fileSizeCr}</p> 
                         <p>備考欄: ${fileData.comment}</p> 
+                        <button id="downloadButton">ダウンロード</button>
                     `;
+                     // ダウンロードボタンのイベントリスナーを追加
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.addEventListener('click', () => {
+                if (fileData.hasPassword) {
+                    const enteredPassword = prompt('パスワードを入力してください:');
+                    if (enteredPassword === fileData.password) {
+                        downloadFile(fileData.fileName, fileData.fileContent);
+                    } else {
+                        alert('パスワードが違います。');
+                    }
+                } else {
+                    downloadFile(fileData.fileName, fileData.fileContent);
+                }
+            });
                 } else {
                     alert('ファイルが見つかりません。');
                 }
             };
+            
 
             request.onerror = function(event) {
                 console.error('Error retrieving file from database:', event.target.errorCode);
             };
+            function downloadFile(fileName, fileContent) {
+                const blob = new Blob([fileContent]);
+                const url = URL.createObjectURL(blob);
+            
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+            
+                URL.revokeObjectURL(url);
+            }
         }
