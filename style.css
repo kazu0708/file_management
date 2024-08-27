@@ -2,6 +2,10 @@
     float: right;
 }
 
+#searchInput {
+    width: 200px;
+}
+
 #fileTable{
     margin: 0 auto;
 }
