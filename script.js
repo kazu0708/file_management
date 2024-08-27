@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fileNameCell = document.createElement('td');
         const fileLink = document.createElement('a');
         fileLink.textContent = fileData.fileName;
-        fileLink.href = `fileDetail.html?id=${fileData.id}`; // idをURLパラメータとして渡す
+        fileLink.href = `filedetail.html?id=${fileData.id}`; // idをURLパラメータとして渡す
         fileNameCell.appendChild(fileLink);
         row.appendChild(fileNameCell);
 
