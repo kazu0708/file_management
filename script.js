@@ -54,11 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const fileData = {
                 fileName: file.name,
+                fileExtension: file.name.split('.').pop(), // 拡張子を取得
+                fileSize: file.size, // ファイルサイズを取得
                 uploaderName: uploaderName,
                 uploadDate: uploadDate,
                 hasPassword: hasPassword,
                 password: hasPassword ? password : null,
-                fileContent: file // ファイルデータを保存
+                fileContent: file, // ファイルデータを保存
+                comment: document.getElementById('comment').value
             };
 
             const request = objectStore.add(fileData);
