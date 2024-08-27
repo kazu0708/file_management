@@ -1,3 +1,7 @@
+.search {
+    float: right;
+}
+
 #fileTable{
     margin: 0 auto;
 }
