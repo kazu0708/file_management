@@ -31,6 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submitButton');
     const fileTableBody = document.querySelector('#fileTable tbody');
 
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    searchButton.addEventListener('click', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        filterFiles(searchTerm);
+    });
     // ファイルのアップロードと保存
     submitButton.addEventListener('click', (event) => {
         event.preventDefault();
@@ -199,6 +206,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
         transaction.onerror = function(event) {
             console.error("Transaction error: ", event.target.errorCode);
+        };
+    };
+     // 検索結果をフィルタリングする関数
+     function filterFiles(searchTerm) {
+        fileTableBody.innerHTML = ''; // テーブルをクリア
+
+        const transaction = db.transaction(['files'], 'readonly');
+        const objectStore = transaction.objectStore('files');
+
+        objectStore.openCursor().onsuccess = function(event) {
+            const cursor = event.target.result;
+
+            if (cursor) {
+                const fileData = cursor.value;
+
+                // 検索条件に合致するかチェック
+                const matchesFileName = fileData.fileName.toLowerCase().includes(searchTerm);
+                const matchesUploaderName = fileData.uploaderName.toLowerCase().includes(searchTerm);
+
+                if (matchesFileName || matchesUploaderName) {
+                    addFileToTable(fileData); // 合致する場合、テーブルに追加
+                }
+                cursor.continue();
+            }
         };
     };
 });
