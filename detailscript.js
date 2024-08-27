@@ -37,6 +37,9 @@ let db;
                         <p>投稿者: ${fileData.uploaderName}</p>
                         <p>アップロード日時: ${fileData.uploadDate}</p>
                         <p>パスワードの有無: ${fileData.hasPassword ? 'あり' : 'なし'}</p>
+                        <p>ファイル形式: ${fileData.fileExtension}</p> 
+                        <p>ファイルサイズ: ${fileData.fileSize} バイト</p> 
+                        <p>備考欄: ${fileData.comment}</p> 
                     `;
                 } else {
                     alert('ファイルが見つかりません。');
