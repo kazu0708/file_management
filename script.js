@@ -101,7 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ファイル名
         const fileNameCell = document.createElement('td');
-        fileNameCell.textContent = fileData.fileName;
+        const fileLink = document.createElement('a');
+        fileLink.textContent = fileData.fileName;
+        fileLink.href = `fileDetail.html?id=${fileData.id}`; // idをURLパラメータとして渡す
+        fileNameCell.appendChild(fileLink);
         row.appendChild(fileNameCell);
 
         // ファイル投稿者名
@@ -164,26 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
     }
 
-
     // ファイルの削除処理
-function deleteFile(id, row) {
-    const confirmDelete = confirm('本当にこのファイルを削除しますか？');
-    if (confirmDelete) {
-        const transaction = db.transaction(['files'], 'readwrite');
-        const objectStore = transaction.objectStore('files');
-        const request = objectStore.delete(id);
+    function deleteFile(id, row) {
+        const confirmDelete = confirm('本当にこのファイルを削除しますか？');
+        if (confirmDelete) {
+            const transaction = db.transaction(['files'], 'readwrite');
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.delete(id);
 
-        request.onsuccess = function() {
-            console.log('File deleted from the database.');
-            row.remove(); // テーブルから行を削除
-        };
+            request.onsuccess = function() {
+                console.log('File deleted from the database.');
+                row.remove(); // テーブルから行を削除
+            };
 
-        request.onerror = function(event) {
-            console.error('Error deleting file from database:', event.target.errorCode);
-        };
+            request.onerror = function(event) {
+                console.error('Error deleting file from database:', event.target.errorCode);
+            };
+        }
     }
-}
-
 
     request.onsuccess = function(event) {
         db = event.target.result;
